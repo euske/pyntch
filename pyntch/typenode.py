@@ -41,13 +41,16 @@ class TypeNode(object):
     return
   
   @classmethod
-  def run(klass):
-    while klass.procs:
+  def run(klass, iteration=sys.maxint):
+    i = 0
+    while i < iteration and klass.procs:
       if klass.verbose:
-        print >>sys.stderr, 'processing: %d nodes (%d left)' % (klass.nodes, len(klass.procs))
+        print >>sys.stderr, ('processing(%d): %d nodes (%d left)' %
+                             (i, klass.nodes, len(klass.procs)))
       (procs, klass.procs) = (klass.procs, set())
       for (proc,obj) in procs:
         proc(obj)
+      i += 1
     return
   
   def __init__(self, types):
