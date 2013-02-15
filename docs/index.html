@@ -1,0 +1,744 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<title>Pyntch - Static code analyzer for Python</title>
+<style type="text/css"><!--
+blockquote { background: #eeeeee; }
+.note { color: blue; }
+.comment { color: darkgreen; }
+--></style>
+</head><body>
+
+<h1>Pyntch</h1>
+<p>
+Static code analyzer for Python
+
+<p>
+<a href="http://www.unixuser.org/~euske/python/pyntch/index.html">Homepage</a>
+&nbsp;
+<a href="#changes">Recent Changes</a>
+
+<div align=right class=lastmod>
+<!-- hhmts start -->
+Last Modified: Sun Nov  1 18:27:50 JST 2009
+<!-- hhmts end -->
+</div>
+
+<p>
+<strong>Table of Contents:</strong>
+<ul>
+<li> <a href="#intro">What's It?</a>
+<li> <a href="#source">Download</a>
+<li> <a href="#background">Background</a>
+<li> <a href="#install">Install</a> 
+<li> <a href="#usage">How to Use</a>
+<ul>
+<li> <a href="#summary">Summary Mode</a> 
+<li> <a href="#annot">Annotation Mode</a> 
+<li> <a href="#modpath">Adding a Module Path</a> 
+<li> <a href="#stub">Creating a Stub Module</a> 
+<li> <a href="#constraint">Putting Extra Constraints</a> 
+</ul>
+<li> <a href="#limitations">Limitations</a>
+<li> <a href="#howitworks">How It Works</a>
+<li> <a href="#todos">TODOs</a>
+<li> <a href="#changes">Changes</a>
+<li> <a href="#related">Related Projects</a>
+<li> <a href="#license">Terms and Conditions</a>
+</ul>
+
+<a name="source"></a>
+<p>
+<strong>Download:</strong><br>
+<a href="http://www.unixuser.org/~euske/python/pyntch/pyntch-20091028.tar.gz">
+http://www.unixuser.org/~euske/python/pyntch/pyntch-20091028.tar.gz
+</a>
+(50KBytes)
+
+<p>
+<strong>Discussion:</strong> (for questions and comments, post here)<br>
+<a href="http://groups.google.com/group/pyntch-users/">
+http://groups.google.com/group/pyntch-users/
+</a>
+
+<P>
+<strong>View the source:</strong><br>
+<a href="http://code.google.com/p/pyntch/source/browse/trunk/pyntch">
+http://code.google.com/p/pyntch/source/browse/trunk/pyntch
+</a>
+
+
+<a name="intro"></a>
+<hr noshade>
+<h2>What's It?</h2>
+<p>
+Pyntch (pron. "<em>pinch</em>", originally means PYthoN Type CHecker) is a
+static code analyzer for Python programming language.  It detects
+possible runtime errors before actually running a code.  If you are
+worried about potential runtime errors in a Python program,
+Pyntch is a tool for you.  Pyntch examines a source
+code and infers all possible types of variables, attributes,
+function arguments, and return values of each function or
+method (take a look at a <a href="#sample">sample output</a> below). 
+Then it detects possible exceptions caused by type
+mismatch, attribute not found, or other types of exceptions raised
+from each function. Unlike other Python code checkers (such as
+Pychecker or Pyflakes), Pyntch does not address style issues.
+Pyntch normally runs pretty fast. It can perform checking for
+tens of thousands of lines of code within a minute.
+<p>
+<strong>Note:</strong>
+Pyntch currently supports Python 2.x only.
+<p>
+The following information can be gathered by static checking:
+<ul>
+<li> Possible types of objects that each variable,
+function argument or class attribte might potentially have.
+<li> Functions or instance methods that can be actually called at each
+function call (considering polymorphism).
+<li> Calling locations for each function or method.
+<li> Uncaught exceptions such as:
+<ul>
+<li> Type mismatch (e.g. adding an integer and a string).
+<li> Access to undefined attributes
+ (e.g. <code>obj.attr</code> where <code>obj</code> does not have attribute <code>attr</code>).
+<li> Subscript access to unsubscriptable objects
+ (e.g. <code>a[1]</code> where a is not a sequence).
+<li> Calling something uncallable
+ (e.g. <code>func(1)</code> where func is not either function, method, or class).
+<li> Iteration over non-iterable objects
+ (e.g. <code>sorted(x)</code> where x is not an iterable object).
+</ul>
+</ul>
+
+<a name="sample"></a>
+<h3>Sample Output:</h3>
+<p>
+(Original code)
+<blockquote><pre>
+import sys, os
+
+# Count the total number of characters for each file in directory.
+def countchars(directory):
+  n = 0
+  for name in os.listdir(directory):
+    fp = open(name)
+    for line in fp:
+      n += line
+    fp.fclose()
+  return n
+
+countchars(sys.argv[1])
+</pre></blockquote>
+<p>
+(Annotated by Pyntch)
+<blockquote><pre>
+<span class=comment># os = &lt;module os&gt;</span>
+<span class=comment># sys = &lt;module sys&gt;</span>
+import sys, os
+
+# Count the total number of characters for each file in directory.
+def countchars(directory):
+  <span class=comment># directory = &lt;str&gt;</span>
+  <span class=comment># fp = &lt;file&gt;</span>
+  <span class=comment># line = &lt;str&gt;</span>
+  <span class=comment># n = &lt;int&gt;</span>
+  <span class=comment># name = &lt;str&gt;</span>
+  <span class=comment># return &lt;int&gt;</span>
+  n = 0
+  for name in os.listdir(directory):
+    fp = open(name)
+    for line in fp:
+      <span class=comment># raise TypeError: not supported operand Add(int, str)</span>
+      n += line
+    <span class=comment># raise AttributeError: attribute not found: @fp.fclose</span>
+    <span class=comment># raise AttributeError: attribute not found: &lt;file&gt;.fclose</span>
+    fp.fclose()
+  return n
+
+countchars(sys.argv[1])
+</pre></blockquote>
+
+
+<a name="background"></a>
+<hr noshade>
+<h2>Background</h2>
+<p>
+Have you had a TypeError caused by giving a wrong type of
+arguments, say, a string object to numeric functions?  Or trying
+to access a nonexistent method of a wrongly passed class that
+would otherwise have such a method? 
+One of the great advantages of scripting languages such as Python
+is its dynamicity. You can define any functions, variables and
+data structures whenever you want without elaborating the detailed
+type definitions. However, this feature comes with some cost:
+sometimes it is difficult to find potential errors that are caused
+by type mismatch before actually running the program.
+<p>
+In a language like Python, there is always a risk of uncaught runtime exceptions 
+that a programmer could not foresee when s/he was writing the code,
+which causes sudden death of the program.
+This kind of behavior is particulary unfavorable for mission
+critical applications, so we want to catch these errors in
+advance. Unfortunately, as the program gets larger, it's getting
+hard to track these kinds of errors, and it's even harder to
+prevent them by infering which types/values can be passed or
+returned by each function.
+<p>
+Pyntch aims to help reducing these burdens by infering what kind
+of types can be assigned to variables/members/function arguments
+and what kind of types can be returned from a function at any time
+of execution, and what kind of exceptions might be raised. This is
+done by examining the code without executing it. The goal of
+Pyntch is to try to analyze every possible execution path and
+all possible combinations of data.
+<p>
+Sounds impossible? Well, I can show you at least this is partially
+possible, by using a technique called "typeflow analysis." 
+For the details, see <a href="#howitworks">How it works?</a> section.
+However, there's also a couple of drawbacks.
+Because the purpose of Pyntch is to catch as many obscure errors
+as possible before the code is acutally used in a production, it
+focuses on the coverage of the analysis at the expense of its accuracy.
+Sometimes Pyntch brings a lot of false positives in its result,
+which need to be further examined by human programmers.
+
+
+<a name="install"></a>
+<hr noshade>
+<h2>Install</h2>
+
+<ol>
+<li> Install <a href="http://www.python.org/download/">Python</a> 2.4 or newer.
+<li> Download the <a href="#source">Pyntch source</a>.
+<li> Extract it.
+<li> Run <code>setup.py</code> to install:<br>
+<blockquote><pre>
+# <strong>python setup.py install</strong>
+</pre></blockquote>
+<li> Done!
+</ol>
+
+
+<a name="usage"></a>
+<hr noshade>
+<h2>How to Use</h2>
+<p>
+The main checking program is <a href="#tchecker.py"><code>tchecker.py</code></a>.
+It comes in two different running modes:
+summary mode and annotation mode.
+<p>
+In summary mode, Pyntch only shows the types of each variable and
+exceptions in a succinct text format.  In annotation mode,
+there're two stages. First, the analyzer program produces an XML
+file that contains all information about a source code. Then
+another program uses that information to annotate the source texts.
+
+<a name="summary"></a>
+<h3>Summary Mode</h3>
+<p>
+The basic use of summary mode is pretty simple and straightforward.
+Take this sample code:
+<blockquote><pre>
+$ <strong>cat -n sample.py</strong>
+     1  import sys, os
+     2
+     3  # Count the total number of characters for each file in directory.
+     4  def countchars(directory):
+     5    n = 0
+     6    for name in os.listdir(directory):
+     7      fp = open(name)
+     8      for line in fp:
+     9        n += line
+    10      fp.fclose()
+    11    return n
+    12
+    13  countchars(sys.argv[1])
+</pre></blockquote>
+<p>
+To check this code, simply run the tchecker.py against the source file:
+<blockquote><pre>
+$ <strong>tchecker.py sample.py</strong>
+loading: 'sample.py' as 'sample'
+...
+total files=9, lines=1435 in 0.38sec <span class=note>.........................................[A]</span>
+[sample (sample.py)]
+  os = &lt;Module os (/home/euske/work/pyntch/pyntch/stub/os.pyi)&gt;
+  sys = &lt;Module sys (/home/euske/work/pyntch/pyntch/stub/sys.pyi)&gt;
+  ### sample(4) <span class=note>..............................................................[B]</span>
+  # called at sample(13) <span class=note>.....................................................[C]</span>
+  def countchars(directory=&lt;str&gt;): <span class=note>...........................................[D]</span>
+    fp = &lt;file&gt; <span class=note>..............................................................[D]</span>
+    line = &lt;str&gt; <span class=note>.............................................................[D]</span>
+    n = &lt;int&gt; <span class=note>................................................................[D]</span>
+    name = &lt;str&gt; <span class=note>.............................................................[D]</span>
+    return = &lt;int&gt; <span class=note>...........................................................[E]</span>
+    raises TypeError: not supported operand Add(int, str) at sample:9 <span class=note>........[F]</span>
+    raises AttributeError: attribute not found: @fp.fclose at sample:10 <span class=note>......[G]</span>
+    raises AttributeError: attribute not found: &lt;file&gt;.fclose at sample:10 <span class=note>...[H]</span>
+</pre></blockquote>
+<p>
+The output shows several things:
+<ul>
+<li> <span class=note>[A]</span>: The analyzer read 9 Python modules (1 target + 8 imported) that have 1,435 lines in total.
+The analysis took 0.38 seconds.
+<li> <span class=note>[B]</span>: Function <code>countchars</code> starts from line 4 in <code>sample1.py</code>.
+<li> <span class=note>[C]</span>: The function is called from line 13.
+<li> <span class=note>[D]</span>: This shows the possible type of each variable.
+<li> <span class=note>[E]</span>: The function returns an integer.
+<li> <span class=note>[F]</span>: The function might raise a <code>TypeError</code> exception at line 10
+by attempting to add an integer and string.
+<li> <span class=note>[G]</span>: Attribute reference <code>fp.fclose</code> fails for any type of objects that
+<code>fp</code> could have contained.
+<li> <span class=note>[H]</span>: A file object does not have <code>fclose</code> attribute. (It should have been <code>close</code> instead.)
+</ul>
+
+<a name="annot"></a>
+<h3>Annotation Mode</h3>
+<p>
+In annotation mode, first you need to run the analyzer program to
+produce the result in an XML format.  Then give the XML file to
+another program called <code>annot.py</code>. This program inserts
+the analysis results into appropriate places in the source code,
+producing an annotated source text.
+
+<p>
+<u>Step 1:</u>
+<blockquote><pre>
+$ <strong>tchecker -o output.xml sample.py</strong>
+loading: 'sample.py' as 'sample'
+...
+total files=9, lines=1435 in 0.40sec
+</pre></blockquote>
+Now <code>output.xml</code> looks like this:
+<blockquote><pre>
+&lt;output&gt;
+&lt;module src="sample.py" name="sample"&gt;
+  &lt;var name="os"&gt;&lt;compound id="0"&gt;&lt;module name="os" /&gt;&lt;/compound&gt;&lt;/var&gt;
+  &lt;var name="sys"&gt;&lt;compound id="0"&gt;&lt;module name="sys" /&gt;&lt;/compound&gt;&lt;/var&gt;
+  &lt;function loc="sample:4:5" name="countchars"&gt;
+    &lt;caller loc="sample:13" /&gt;
+    &lt;arg name="directory"&gt;&lt;compound id="0"&gt;&lt;str /&gt;&lt;/compound&gt;&lt;/arg&gt;
+    &lt;var name="fp"&gt;&lt;compound id="0"&gt;&lt;file /&gt;&lt;/compound&gt;&lt;/var&gt;
+    &lt;var name="line"&gt;&lt;compound id="0"&gt;&lt;str /&gt;&lt;/compound&gt;&lt;/var&gt;
+    &lt;var name="n"&gt;&lt;compound id="0"&gt;&lt;int /&gt;&lt;/compound&gt;&lt;/var&gt;
+    &lt;var name="name"&gt;&lt;compound id="0"&gt;&lt;str /&gt;&lt;/compound&gt;&lt;/var&gt;
+    &lt;return&gt;&lt;compound id="0"&gt;&lt;int /&gt;&lt;/compound&gt;&lt;/return&gt;
+    &lt;raise msg="TypeError: not supported operand Add(int, str)" loc="sample:9" type="TypeError" /&gt;
+    &lt;raise msg="AttributeError: attribute not found: @fp.fclose" loc="sample:10" type="AttributeError" /&gt;
+    &lt;raise msg="AttributeError: attribute not found: &amp;lt;file&amp;gt;.fclose" loc="sample:10" type="AttributeError" /&gt;
+  &lt;/function&gt;
+&lt;/module&gt;
+&lt;/output&gt;
+</pre></blockquote>
+
+<p>
+<u>Step 2:</u>
+<blockquote><pre>
+$ <strong>annot.py output.xml sample.py</strong>
+# os = &lt;module os&gt;
+# sys = &lt;module sys&gt;
+import sys, os
+
+# Count the total number of characters for each file in directory.
+def countchars(directory):
+  # directory = &lt;str&gt;
+  # fp = &lt;file&gt;
+  # line = &lt;str&gt;
+  # n = &lt;int&gt;
+  # name = &lt;str&gt;
+  # return &lt;int&gt;
+  n = 0
+  for name in os.listdir(directory):
+    fp = open(name)
+    for line in fp:
+      # raise TypeError: not supported operand Add(int, str)
+      n += line
+    # raise AttributeError: attribute not found: @fp.fclose
+    # raise AttributeError: attribute not found: &lt;file&gt;.fclose
+    fp.fclose()
+  return n
+
+countchars(sys.argv[1])
+</pre></blockquote>
+
+<a name="tchecker.py"></a>
+<h3>tchecker.py</h3>
+<p>
+<code>tchecker.py</code> is the main checking tool.
+It scans Python source codes and shows the result of analysis.
+The output can be later used for annotation purposes.
+
+<h4>Syntax:</h4>
+<blockquote>
+<code>tchecker.py [<em><u>options</u></em>] <em><u>file.py</u></em> ...</code>
+</blockquote>
+
+<h4>Options:</h4>
+<dl>
+
+<dt> <code>-a</code>
+<dd> Shows the result of all modules that are imported,
+instead of the ones specified in the command line arguments.
+
+<dt> <code>-c <u>config_file</u></code>
+<dd> Specifies a configuration file. A configuration file is a Python 
+script that defines parameters for <code>ErrorConfig</code> settings.
+
+<dt> <code>-C <u><em>key</em>=<em>value</em></u></code>
+<dd> Specifies a configuration parameter (described below).
+
+<dt> <code>-d</code>
+<dd> Increases the debug level.
+
+<dt> <code>-D</code>
+<dd> Ignore all the default Python module paths.
+
+<dt> <code>-f <u><em>type</em></u></code>
+<dd> Specifies the output format. 
+Currently <code>txt</code> (summary mode) or 
+<code>xml</code> (annotation mode) is supported.
+
+<dt> <code>-o <u><em>filename</em></u></code>
+<dd> Specifies an output file name.
+When it ends with ".xml" it automatically assumes the output format is XML.
+
+<dt> <code>-p <u<em>>python_path</em></u></code>
+<dd> Adds a search path for Python modules. Multiple <code>-p</code> options are allowed.
+
+<dt> <code>-P <u><em>stub_path</em></u></code>
+<dd> Adds a stub path for Python modules. Stub files in these directories
+are always used instead of a real Python module.
+Multiple <code>-P</code> options are allowed.
+
+<dt> <code>-q</code>
+<dd> Quiet mode. Suppresses to show the progress.
+
+</dl>
+
+<a name="annot.py"></a>
+<h3>annot.py</h3>
+<p>
+<code>annot.py</code> is an annotation tool.
+It takes an XML output of <code>tchecker.py</code> and combines it 
+with the source codes to produce annotated output.
+A source file can be specified either by an actual pathname or
+by a Python module name (as used with a "<code>import</code>" statement).
+When a pathname is used, the pathname string must be exactly the one 
+contained in the "<code>src</code>" attribute in an XML output.
+
+<h4>Syntax:</h4>
+<blockquote>
+<code>annot.py [<em><u>options</u></em>] <em><u>output_xml</u></em> <em><u>file.py</u></em> ...</code>
+</blockquote>
+or
+<blockquote>
+<code>annot.py [<em><u>options</u></em>] <em><u>output_xml</u></em> <em><u>module_name</u></em> ...</code>
+</blockquote>
+
+<h4>Options:</h4>
+<dl>
+<dt> <code>-p <u><em>basepath</em></u></code>
+<dd> Specifies the base pathname of source files which is to be
+prepended to relative pathnames contained in the output_xml file.
+
+<dt> <code>-d</code>
+<dd> Increases the debug level.
+
+</dl>
+
+
+<a name="modpath"></a>
+<h3>Adding a Module Path</h3>
+<p>
+Pyntch can take module names instead of actual file names as input.
+Pyntch searches the Python search path that is specified by <code>PYTHONPATH</code>
+environment variable, as well as stub path (explained below). If you want to instruct
+Pyntch to look at different locations, use <code>-p</code> option to alter
+the module search path:
+<blockquote><pre>
+$ <strong>tchecker.py -p /path/to/your/modules mypackage.mymodule</strong>
+</pre></blockquote>
+
+<a name="stub"></a>
+<h3>Creating a Stub Module</h3>
+<p>
+Due to the nature of source level analysis, Pyntch cannot analyze
+a program that uses external modules, in which the behavior of
+the code is specified only in opaque binaries.  In that case, a
+user can instruct Pyntch to use an alternative "stub" module which
+is written in Python and defines only the return type of each
+function. Python stub modules are similar to C headers, but a
+Python stub is a real Python code that basically does nothing than
+returning a particular type of objects that the "real" function
+would return. For example, if a Python function returns an integer 
+and a string (depending on its input), its stub function looks like this:
+<blockquote><pre>
+def f(x):
+  return 0
+  return ''
+</pre></blockquote>
+Although this looks meaningless, it is a valid Python code, and
+since Pyntch ignores its execution order (see <A href="#limitations">Limitations</a> section),
+Pyntch recognizes this function as one returning an integer and/or a string.
+<p>
+Python stub files end with "<code>.pyi</code>" in their file names.
+They are usually placed in the default Python search path.
+When a Python stub and its real Python module both exist, the stub module is checked.
+Stub modules for several built-in modules such as <code>sys</code> or
+<code>os.path</code> are included in the current Pyntch distribution.
+They are normally placed in the Pyntch package directory 
+(e.g. <code>/usr/local/lib/python2.5/site-packages</code>) and
+used by default instead of built-in Python modules.
+
+<a name="constraint"></a>
+<h3>Putting Extra Constraints</h3>
+<p>
+It is possible to inform Pyntch that a certain variable can only have
+a specific type. These constraints can be embedded in a source code
+using Python's <code>assert</code> statement, as in:
+<blockquote><pre>
+$ <strong>cat -n assert1.py</strong>
+     1  def f(x):
+     2    assert isinstance(x, (float,int))
+     3    return x*2
+     4
+     5  f(1)
+     6  f(2.3)
+     7  f('foo')
+
+$ <strong>tchecker.py assert1.py</strong>
+[assert1 (assert1.py)]
+  ### assert1(1)
+  # called at assert1(5)
+  # called at assert1(7)
+  # called at assert1(6)
+  def f(x=&lt;float&gt;|&lt;int&gt;):
+    return = &lt;float&gt;|&lt;int&gt;
+    raises TypeError: @x (&lt;str&gt;) must be int|float at assert1:2
+</pre></blockquote>
+
+<a name="warning"></a>
+<h3>Controlling warnings</h3>
+<p>
+Since Pyntch can produce a lot of information about a code, a user
+might be overwhelmed by the amount or complexity of its
+result. Pyntch offers a couple of ways for controlling the
+outputs in order to provide the desired information.
+
+<h4>Configuration parameters:</h4>
+<p>
+These are defined in <code>ErrorConfig</code> class (config.py).
+<dl>
+<dt> <code>raise_uncertain</code> <em>(boolean)</em>
+<dd> Include exceptions that might occur at runtime (such as IndexError or IOError).
+
+<dt> <code>ignore_none</code> <em>(boolean)</em>
+<dd> Supress warnings for operations against a None object.
+
+<dt> <code>show_all_exceptions</code> <em>(boolean)</em>
+<dd> Displays all the possible uncatched exceptions for each function,
+including exceptions that occur indirectly inside the internal function calls.
+
+</dl>
+
+
+<a name="limitations"></a>
+<hr noshade>
+<h2>Limitations</h2>
+<p>
+One of the major drawbacks of typeflow analysis is its inability
+to take account of execution order (which is also true for
+dataflow analysis). The sequence of statements is simply ignored
+and all the possible order is considered. This is like considering
+every permutation of statements in a program and combining them
+into one. This sometimes brings inaccuracy to its result in
+exchange for a comprehensiveness of the checking. For example,
+consider the following two consecutive statements:
+<blockquote><pre>
+x = 1
+x = 'a'
+</pre></blockquote>
+<p>
+After executing these two statements, it is clear that variable
+x has always a string object, not an integer object. However, due
+to the lack of awareness of execution order, Pyntch reports this
+variable might have two possible types: an integer and string.
+Although we expect this kind of errors does not affect much to the
+overall usefulness of the report, we provide a way to supress this
+type of output. Also, Pyntch cannot detect UnboundLocalError.
+<p>
+Another limitation is that
+Pyntch assumes the scope of each namespace is statically defined,
+i.e. all the names (variables, functions, classes and attributes)
+are written down in the source code. Therefore a program that
+define or alter the namespace dynamically during execution cannot be
+correctly analyzed. Basically, a code has to meet
+the following conditions:
+<ul>
+<li> not using <code>globals()</code> or <code>locals()</code> function,
+ nor refering to or altering <code>__dict__</code> member.
+<li> not using <code>getattr</code> or <code>setattr</code>.
+<li> not using <code>eval</code>, <code>compile</code> or <code>exec</code> functions.
+<li> no metaclass programming.
+</ul>
+
+<p>
+Pyntch cannot correctly analyze a built-in function that returns
+different types of values depending on its parameters
+(notably <code>struct.unpack</code>).
+
+
+<a name="howitworks"></a>
+<hr noshade>
+<h2>How It Works</h2>
+<p>
+(This section is still under construction.)
+<p>
+The basic mechanism of Pyntch is based on the idea of "typeflow
+analysis."  This is similar to dataflow analysis, which gives the
+maximal set of possible data that are stored at each location
+(variables, attributes, arguments, and return values) in a
+program. First, it constructs a large connected graph that
+represents the entire dataflow of a Python program.  Every
+expression or statement is converted to a "node", which is an
+abstract place where certain type(s) of data is stored or
+passed. Then it tries to figure out what type of data goes from
+one node to another.
+<p>
+Let us consider a trivial example:
+<blockquote><pre>
+A = 'xyz'
+B = 2
+C = a*b
+</pre></blockquote>
+<center>
+<img src="simple1.png"><br>
+Fig 1. Simple expression
+</center>
+<p>
+Given the above statements, Pyntch constructs a graph shown in
+Fig. 1. A square shaped node is a "simple" node, which represents a
+single type of Python object. A round shaped node is a "compound"
+node, which is a place that one or more types of objects can be
+potentially stored. Now, the data stored at the top two leaf
+nodes, which are a string and an integer object respectively, flow
+down to the lower nodes and each node passes the data according to
+the arrow. Both objects are "mixed" at the plus sign node, which
+produces a string object (because in Python multiplying a string
+and an integer gives a repreated string).  Eventually, the object
+goes into variable c, which is the node at the bottom.
+This way, you can infer the possible type of each variable:
+<ul>
+<li> <strong>&lt;str&gt;</strong> &rarr; Node "A". Therefore, variable <code>A</code> has <code>&lt;str&gt;</code>.
+<li> <strong>&lt;int&gt;</strong> &rarr; Node "B". Therefore, variable <code>B</code> has <code>&lt;int&gt;</code>.
+<li> <strong>&lt;str&gt;</strong> &rarr; Node "Mul"
+because in Python, <code>&lt;str&gt;*&lt;int&gt;</code> yields <code>&lt;str&gt;</code>.
+<li> <strong>&lt;str&gt;</strong> &rarr; Node "C". Therefore, variable <code>C</code> has <code>&lt;str&gt;</code>.
+</ul>
+
+<h3>Handling Dynamicity</h3>
+<p>
+Now take an example with functions:
+<blockquote><pre>
+  def foo(x):
+    return x+1
+  def bar(y):
+    return y*2
+  f = foo
+  z = f(1)
+  f = bar
+  z = f(2)
+</pre></blockquote>
+<p>
+In Python, defining a function is nothing more than assigning a
+function object to a variable. This means you cannot determine the
+effect of a function call by its name because an actual procedure
+that is being called can be changed. Therefore, you need to infer
+which function procedure is actually stored in a certain variable
+(with a certain name) when that name is used for a function call.
+Pyntch handles this situation by
+
+<center>
+<img src="simple2.png"><br>
+Fig 2. Handling function call
+</center>
+
+<h3>Handling Circular Dependency</h3>
+
+<h3>Preventing Combinatorial Explosion</h3>
+
+<p>
+(todo)
+
+
+<a name="todos"></a>
+<hr noshade>
+<h2>TODOs</h2>
+<ul>
+<li> Better representation of aggregate types (too many "..."s).
+<li> Basic execution path analysis.
+<li> Cross referencing variables/attributes.
+<li> Support special function checking (e.g. pack, unpack, array).
+<li> Add more test cases and stub modules.
+<li> Finer control of errors/warnings: ignore exceptions raised in certain class/functions.
+</ul>
+
+<a name="changes"></a>
+<hr noshade>
+<h2>Changes</h2>
+<ul>
+<li> 2009/10/28: Another batch of bugfixes.
+<li> 2009/10/18: Source code annotation support.
+<li> 2009/09/27: Another bugfixes.
+<li> 2009/09/06: More bugfixes.
+<li> 2009/08/19: Bugfixes and improved speed.
+<li> 2009/06/15: Several bugfixes.
+<li> 2009/05/31: Initial release.
+<li> 2008/03/01: Start the project.
+</ul>
+
+
+<a name="related"></a>
+<hr noshade>
+<h2>Related Projects</h2>
+<ul>
+<li> <a href="http://pychecker.sourceforge.net/">PyChecker: a python source code checking tool</a>
+<li> <a href="http://www.logilab.org/project/pylint">pylint (analyzes Python source code looking for bugs and signs of poor quality)</title>
+<li> <a href="http://divmod.org/trac/wiki/DivmodPyflakes">Pyflakes</a>
+</ul>
+
+
+<a name="license"></a>
+<hr noshade>
+<h2>Terms and Conditions</h2>
+<p>
+<small>
+Copyright (c) 2008-2009 Yusuke Shinyama &lt;yusuke at cs dot nyu dot edu&gt;
+<p>
+Permission is hereby granted, free of charge, to any person
+obtaining a copy of this software and associated documentation
+files (the "Software"), to deal in the Software without
+restriction, including without limitation the rights to use,
+copy, modify, merge, publish, distribute, sublicense, and/or
+sell copies of the Software, and to permit persons to whom the
+Software is furnished to do so, subject to the following
+conditions:
+<p>
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+<p>
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
+KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+</small>
+
+<hr noshade>
+<address>Yusuke Shinyama</address>
+</body>
