@@ -1,5 +1,10 @@
 TODO:
 
+- code cleanup.
+- fix: raise only doesn't return <None>.
+- fix: class doesn't inherit its members.
+- fix: use tokenizer for code annotation.
+
 - socket module
 - better representation of aggregate types (too many "..."s).
 - basic execution path analysis. (ignore overriden values)
