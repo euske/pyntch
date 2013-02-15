@@ -90,7 +90,7 @@ def build_assign(reporter, frame, space, n, v, evals):
 ##
 def build_expr(reporter, frame, space, tree, evals):
   from pyntch.basic_types import BUILTIN_OBJECT, IntType
-  from pyntch.aggregate_types import IterType, GeneratorType, ListType, DictType, TupleType
+  from pyntch.aggregate_types import IterType, GeneratorType, ListType, SetType, DictType, TupleType
 
   if isinstance(tree, ast.Const):
     typename = type(tree.value).__name__
@@ -149,6 +149,10 @@ def build_expr(reporter, frame, space, tree, evals):
   elif isinstance(tree, ast.List):
     elements = [ build_expr(reporter, frame, space, node, evals) for node in tree.nodes ]
     expr = ListType.create_list(CompoundTypeNode(elements))
+
+  elif isinstance(tree, ast.Set):
+    elements = [ build_expr(reporter, frame, space, node, evals) for node in tree.nodes ]
+    expr = SetType.create_set(CompoundTypeNode(elements))
 
   elif isinstance(tree, ast.Dict):
     items = [ (build_expr(reporter, frame, space, k, evals),

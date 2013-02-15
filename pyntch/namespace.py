@@ -277,6 +277,9 @@ class Namespace(object):
     elif isinstance(tree, ast.List):
       for node in tree.nodes:
         self.register_names(node)
+    elif isinstance(tree, ast.Set):
+      for node in tree.nodes:
+        self.register_names(node)
     elif isinstance(tree, ast.Dict):
       for (k,v) in tree.items:
         self.register_names(k)
