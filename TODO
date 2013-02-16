@@ -1,7 +1,6 @@
 TODO:
 
 - code cleanup.
-- fix: raise only doesn't return <None>.
 - fix: class doesn't inherit its members.
 - fix: use tokenizer for code annotation.
 

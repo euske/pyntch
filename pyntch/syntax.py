@@ -420,6 +420,7 @@ def build_stmt(reporter, frame, space, tree, evals, isfuncdef=False, parent_spac
     else:
       # re-raise
       frame.set_reraise()
+    return True
 
   # printnl
   elif isinstance(tree, (ast.Print, ast.Printnl)):
