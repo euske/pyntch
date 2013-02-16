@@ -1,9 +1,15 @@
 #!/usr/bin/env python
 
-from pyntch.typenode import SimpleTypeNode, CompoundTypeNode, NodeTypeError, NodeAttrError, NodeAssignError
-from pyntch.typenode import TypeChecker, SequenceTypeChecker
+from pyntch.typenode import SimpleTypeNode
+from pyntch.typenode import CompoundTypeNode
+from pyntch.typenode import NodeTypeError
+from pyntch.typenode import NodeAttrError
+from pyntch.typenode import NodeAssignError
+from pyntch.typenode import TypeChecker
+from pyntch.typenode import SequenceTypeChecker
 from pyntch.exception import StopIterationType
-from pyntch.frame import ExecutionFrame, ExceptionCatcher
+from pyntch.frame import ExecutionFrame
+from pyntch.frame import ExceptionCatcher
 from pyntch.config import ErrorConfig
 
 

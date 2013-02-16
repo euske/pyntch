@@ -3,13 +3,40 @@
 ##  This module should not be imported as toplevel,
 ##  as it causes circular imports!
 
-from pyntch.typenode import CompoundTypeNode, NodeTypeError, NodeAttrError, UndefinedTypeNode
-from pyntch.typenode import BuiltinType, BuiltinCallable, BuiltinConstCallable
-from pyntch.typenode import TypeChecker, SequenceTypeChecker, Element
-from pyntch.basic_types import TypeType, NoneType, NumberType, BoolType, IntType, LongType, \
-     FloatType, BaseStringType, StrType, UnicodeType, ANY
-from pyntch.aggregate_types import ListType, TupleType, DictType, IterType, ListObject
-from pyntch.expression import IterElement, IterRef, BinaryOp, MustBeDefinedNode, FunCall
+try:
+  from xml.etree.cElementTree import Element
+except ImportError:
+  from xml.etree.ElementTree import Element
+from pyntch.typenode import CompoundTypeNode
+from pyntch.typenode import NodeTypeError
+from pyntch.typenode import NodeAttrError
+from pyntch.typenode import UndefinedTypeNode
+from pyntch.typenode import BuiltinType
+from pyntch.typenode import BuiltinCallable
+from pyntch.typenode import BuiltinConstCallable
+from pyntch.typenode import TypeChecker
+from pyntch.typenode import SequenceTypeChecker
+from pyntch.basic_types import TypeType
+from pyntch.basic_types import NoneType
+from pyntch.basic_types import NumberType
+from pyntch.basic_types import BoolType
+from pyntch.basic_types import IntType
+from pyntch.basic_types import LongType
+from pyntch.basic_types import FloatType
+from pyntch.basic_types import BaseStringType
+from pyntch.basic_types import StrType
+from pyntch.basic_types import UnicodeType
+from pyntch.basic_types import ANY
+from pyntch.aggregate_types import ListType
+from pyntch.aggregate_types import TupleType
+from pyntch.aggregate_types import DictType
+from pyntch.aggregate_types import IterType
+from pyntch.aggregate_types import ListObject
+from pyntch.expression import IterElement
+from pyntch.expression import IterRef
+from pyntch.expression import BinaryOp
+from pyntch.expression import MustBeDefinedNode
+from pyntch.expression import FunCall
 from pyntch.config import ErrorConfig
 
 

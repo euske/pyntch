@@ -1,15 +1,34 @@
 #!/usr/bin/env python
 
 from compiler import ast
-from pyntch.typenode import TypeNode, UndefinedTypeNode, CompoundTypeNode, TypeChecker
-from pyntch.frame import ExecutionFrame, ExceptionCatcher, ExceptionMaker
+from pyntch.typenode import TypeNode
+from pyntch.typenode import UndefinedTypeNode
+from pyntch.typenode import CompoundTypeNode
+from pyntch.typenode import TypeChecker
+from pyntch.frame import ExecutionFrame
+from pyntch.frame import ExceptionCatcher
+from pyntch.frame import ExceptionMaker
 from pyntch.config import ErrorConfig
 from pyntch.klass import PythonClassType
-from pyntch.function import FuncType, LambdaFuncType
-from pyntch.expression import ExpressionNode, AttrRef, SubRef, SliceRef, \
-     AttrAssign, SubAssign, SliceAssign, \
-     FunCall, BinaryOp, UnaryOp, AssignOp, CompareOp, BooleanOp, NotOp, IfExpOp, \
-     IterElement, TupleUnpack
+from pyntch.function import FuncType
+from pyntch.function import LambdaFuncType
+from pyntch.expression import ExpressionNode
+from pyntch.expression import AttrRef
+from pyntch.expression import SubRef
+from pyntch.expression import SliceRef
+from pyntch.expression import AttrAssign
+from pyntch.expression import SubAssign
+from pyntch.expression import SliceAssign
+from pyntch.expression import FunCall
+from pyntch.expression import BinaryOp
+from pyntch.expression import UnaryOp
+from pyntch.expression import AssignOp
+from pyntch.expression import CompareOp
+from pyntch.expression import BooleanOp
+from pyntch.expression import NotOp
+from pyntch.expression import IfExpOp
+from pyntch.expression import IterElement
+from pyntch.expression import TupleUnpack
 
 
 ##  SliceObject

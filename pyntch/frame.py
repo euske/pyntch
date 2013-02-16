@@ -1,6 +1,12 @@
 #!/usr/bin/env python
 import sys
-from pyntch.typenode import TypeNode, CompoundTypeNode, NodeTypeError, Element
+try:
+  from xml.etree.cElementTree import Element
+except ImportError:
+  from xml.etree.ElementTree import Element
+from pyntch.typenode import TypeNode
+from pyntch.typenode import CompoundTypeNode
+from pyntch.typenode import NodeTypeError
 
 
 ##  TracebackObject

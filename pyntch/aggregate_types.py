@@ -1,12 +1,29 @@
 #!/usr/bin/env python
 
-from pyntch.typenode import CompoundTypeNode, NodeTypeError, NodeAttrError, NodeAssignError, UndefinedTypeNode, Element
-from pyntch.typenode import BuiltinObject, BuiltinType, BuiltinCallable, BuiltinMethod, BuiltinConstMethod
+try:
+  from xml.etree.cElementTree import Element
+except ImportError:
+  from xml.etree.ElementTree import Element
+from pyntch.typenode import CompoundTypeNode
+from pyntch.typenode import NodeTypeError
+from pyntch.typenode import NodeAttrError
+from pyntch.typenode import NodeAssignError
+from pyntch.typenode import UndefinedTypeNode
+from pyntch.typenode import BuiltinObject
+from pyntch.typenode import BuiltinType
+from pyntch.typenode import BuiltinCallable
+from pyntch.typenode import BuiltinMethod
+from pyntch.typenode import BuiltinConstMethod
 from pyntch.typenode import TypeChecker
 from pyntch.exception import StopIterationType
 from pyntch.frame import ExceptionCatcher
-from pyntch.basic_types import BoolType, IntType, StrType, NoneType, ANY
-from pyntch.expression import IterElement, MethodCall
+from pyntch.basic_types import BoolType
+from pyntch.basic_types import IntType
+from pyntch.basic_types import StrType
+from pyntch.basic_types import NoneType
+from pyntch.basic_types import ANY
+from pyntch.expression import IterElement
+from pyntch.expression import MethodCall
 from pyntch.config import ErrorConfig
 
 

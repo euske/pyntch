@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 
 from compiler import ast
-from pyntch.typenode import CompoundTypeNode, TypeChecker
+from pyntch.typenode import CompoundTypeNode
+from pyntch.typenode import TypeChecker
 
 
 ##  Variable

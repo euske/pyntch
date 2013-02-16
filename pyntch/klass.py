@@ -1,8 +1,17 @@
 #!/usr/bin/env python
 
-from pyntch.typenode import CompoundTypeNode, UndefinedTypeNode, \
-     NodeTypeError, NodeAttrError, NodeAssignError, BuiltinType, BuiltinObject, \
-     TypeChecker, Element
+try:
+  from xml.etree.cElementTree import Element
+except ImportError:
+  from xml.etree.ElementTree import Element
+from pyntch.typenode import CompoundTypeNode
+from pyntch.typenode import UndefinedTypeNode
+from pyntch.typenode import NodeTypeError
+from pyntch.typenode import NodeAttrError
+from pyntch.typenode import NodeAssignError
+from pyntch.typenode import BuiltinType
+from pyntch.typenode import BuiltinObject
+from pyntch.typenode import TypeChecker
 from pyntch.namespace import Namespace
 from pyntch.module import TreeReporter
 from pyntch.frame import ExecutionFrame

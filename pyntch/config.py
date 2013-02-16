@@ -1,9 +1,18 @@
 #!/usr/bin/env python
 import sys
-from pyntch.exception import SyntaxErrorType, TypeErrorType, ValueErrorType, \
-     AttributeErrorType, IndexErrorType, IOErrorType, EOFErrorType, \
-     KeyErrorType, NameErrorType, RuntimeErrorType, OSErrorType, \
-     UnicodeDecodeErrorType, UnicodeEncodeErrorType
+from pyntch.exception import SyntaxErrorType
+from pyntch.exception import TypeErrorType
+from pyntch.exception import ValueErrorType
+from pyntch.exception import AttributeErrorType
+from pyntch.exception import IndexErrorType
+from pyntch.exception import IOErrorType
+from pyntch.exception import EOFErrorType
+from pyntch.exception import KeyErrorType
+from pyntch.exception import NameErrorType
+from pyntch.exception import RuntimeErrorType
+from pyntch.exception import OSErrorType
+from pyntch.exception import UnicodeDecodeErrorType
+from pyntch.exception import UnicodeEncodeErrorType
 
 class ErrorConfig(object):
 

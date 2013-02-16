@@ -3,9 +3,18 @@
 ##  This module should not be imported as toplevel,
 ##  as it causes circular imports!
 
-from pyntch.typenode import TypeNode, CompoundTypeNode, NodeAttrError, NodeAssignError, UndefinedTypeNode
-from pyntch.typenode import BuiltinObject, BuiltinType, BuiltinCallable, BuiltinConstCallable, BuiltinConstMethod
-from pyntch.typenode import TypeChecker, KeyValueTypeChecker
+from pyntch.typenode import TypeNode
+from pyntch.typenode import CompoundTypeNode
+from pyntch.typenode import NodeAttrError
+from pyntch.typenode import NodeAssignError
+from pyntch.typenode import UndefinedTypeNode
+from pyntch.typenode import BuiltinObject
+from pyntch.typenode import BuiltinType
+from pyntch.typenode import BuiltinCallable
+from pyntch.typenode import BuiltinConstCallable
+from pyntch.typenode import BuiltinConstMethod
+from pyntch.typenode import TypeChecker
+from pyntch.typenode import KeyValueTypeChecker
 from pyntch.config import ErrorConfig
 from pyntch.klass import InstanceObject
 

@@ -1,5 +1,7 @@
 #!/usr/bin/env python
-import sys, os.path, compiler
+import sys
+import os.path
+import compiler
 try:
   from xml.etree.cElementTree import Element, ElementTree
 except ImportError:
@@ -8,7 +10,9 @@ try:
   from cStringIO import StringIO
 except ImportError:
   from StringIO import StringIO
-from pyntch.typenode import BuiltinType, BuiltinObject, NodeAssignError
+from pyntch.typenode import BuiltinType
+from pyntch.typenode import BuiltinObject
+from pyntch.typenode import NodeAssignError
 from pyntch.frame import ExecutionFrame
 from pyntch.namespace import ModuleNamespace
 

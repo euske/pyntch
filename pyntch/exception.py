@@ -1,9 +1,14 @@
 #!/usr/bin/env python
 
-from pyntch.typenode import TypeNode, CompoundTypeNode, \
-     NodeTypeError, NodeAttrError, NodeAssignError, \
-     BuiltinType, BuiltinObject
-from pyntch.klass import ClassType, InstanceObject
+from pyntch.typenode import TypeNode
+from pyntch.typenode import CompoundTypeNode
+from pyntch.typenode import NodeTypeError
+from pyntch.typenode import NodeAttrError
+from pyntch.typenode import NodeAssignError
+from pyntch.typenode import BuiltinType
+from pyntch.typenode import BuiltinObject
+from pyntch.klass import ClassType
+from pyntch.klass import InstanceObject
 
 
 ##  ExceptionType
