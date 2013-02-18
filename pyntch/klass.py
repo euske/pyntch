@@ -234,7 +234,8 @@ class PythonClassType(ClassType, TreeReporter):
 
   def showxml(self, out):
     (module,lineno) = self.loc
-    out.start_xmltag('class', name=self.name)
+    out.start_xmltag('class', name=self.name,
+                     loc='%s:%s' % (module.get_name(), lineno))
     for frame in self.frames:
       (module,lineno) = frame.getloc()
       out.show_xmltag('caller',

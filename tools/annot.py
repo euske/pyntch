@@ -46,6 +46,7 @@ def annot(fp, module):
     lines[n].append(x)
     return
   def rec(e):
+    (_,n) = getlineno(e.get('loc', ':1'))
     for c in e.getchildren():
       if c.tag in ('module', 'class', 'function'):
         rec(c)

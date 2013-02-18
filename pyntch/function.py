@@ -203,7 +203,8 @@ class FuncType(BuiltinType, TreeReporter):
 
   def showxml(self, out):
     (module,lineno) = self.frame.getloc()
-    out.start_xmltag('function', name=self.name)
+    out.start_xmltag('function', name=self.name,
+                     loc='%s:%s' % (module.get_name(), lineno))
     for frame in self.frames:
       (module,lineno) = frame.getloc()
       out.show_xmltag('caller', loc='%s:%s' % (module.get_name(), lineno))
