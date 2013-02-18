@@ -1,3 +1,0 @@
-#!/bin/sh
-d="`dirname $0`"
-PYTHONPATH="$d/.." python -S "$d/tchecker.py" "$@"
